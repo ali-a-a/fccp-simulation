@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/labstack/echo/v4"
 	"github.com/sirupsen/logrus"
 )
 

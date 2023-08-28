@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
@@ -21,9 +20,7 @@ func Save(c echo.Context) error {
 		return err
 	}
 
-	fmt.Println(string(output))
-
-	return c.JSON(http.StatusOK, output)
+	return c.JSON(http.StatusOK, string(output))
 }
 
 func Load(c echo.Context) error {
@@ -34,9 +31,7 @@ func Load(c echo.Context) error {
 		return err
 	}
 
-	fmt.Println(string(output))
-
-	return c.JSON(http.StatusOK, output)
+	return c.JSON(http.StatusOK, string(output))
 }
 
 func Log(c echo.Context) error {
@@ -47,9 +42,7 @@ func Log(c echo.Context) error {
 		return err
 	}
 
-	fmt.Println(string(output))
-
-	return c.JSON(http.StatusOK, output)
+	return c.JSON(http.StatusOK, string(output))
 }
 
 func main() {

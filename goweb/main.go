@@ -13,7 +13,8 @@ import (
 )
 
 func Save(c echo.Context) error {
-	output, err := exec.Command("/bin/sh", "/root/fccp-simulation/goweb/save.sh").Output()
+	output, err := exec.Command("/bin/sh", "/root/fccp-simulation/goweb/save.sh",
+		os.Getenv("DEST_IP"), os.Getenv("DEST_PASS")).Output()
 	if err != nil {
 		logrus.Errorf("error in executing save.sh: %s", err.Error())
 
@@ -59,7 +60,6 @@ func main() {
 	e.POST("/save", Save)
 	e.POST("/load", Load)
 	e.GET("/log", Log)
-
 
 	go func() {
 		if err := e.Start(":7677"); err != nil {

@@ -12,7 +12,7 @@ import (
 )
 
 func Save(c echo.Context) error {
-	output, err := exec.Command("/bin/sh", "/root/goweb/save.sh").Output()
+	output, err := exec.Command("/bin/sh", "/root/fccp-simulation/goweb/save.sh").Output()
 	if err != nil {
 		logrus.Errorf("error in executing save.sh: %s", err.Error())
 
@@ -25,7 +25,7 @@ func Save(c echo.Context) error {
 }
 
 func Load(c echo.Context) error {
-	output, err := exec.Command("/bin/sh", "/root/goweb/load.sh").Output()
+	output, err := exec.Command("/bin/sh", "/root/fccp-simulation/goweb/load.sh").Output()
 	if err != nil {
 		logrus.Errorf("error in executing load.sh: %s", err.Error())
 
@@ -38,7 +38,7 @@ func Load(c echo.Context) error {
 }
 
 func Log(c echo.Context) error {
-	output, err := exec.Command("/bin/sh", "/root/goweb/log.sh").Output()
+	output, err := exec.Command("/bin/sh", "/root/fccp-simulation/goweb/log.sh").Output()
 	if err != nil {
 		logrus.Errorf("error in executing log.sh: %s", err.Error())
 

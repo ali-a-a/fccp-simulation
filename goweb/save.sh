@@ -5,10 +5,10 @@ docker commit counter dockerc
 docker save -o /root/fccp-simulation/goweb/dockerc.tar dockerc
 
 # Copy .tar file to the destination
-sshpass -p "/root/destination/pass" scp /root/fccp-simulation/goweb/dockerc.tar  root@46.249.102.73:/root/fccp-simulation/goweb/dockerc.tar
+sshpass -p "/root/destination/pass" scp /root/fccp-simulation/goweb/dockerc.tar  root@'$DEST_IP':/root/fccp-simulation/goweb/dockerc.tar
 
 # Notify the destination
-curl -X "POST" 46.249.102.73/load
+curl -X "POST" '$DEST_IP'/load
 
 # Stop the current container
 docker stop counter

@@ -84,6 +84,10 @@ var consumedLocalOnly bool = defaultConsumedLocalOnly
 
 const defaultScopeOfLocality = "MEC_SYSTEM"
 const defaultConsumedLocalOnly = true
+const defaultMEP1IP = "http://185.110.191.123/save"
+const defaultMEP2IP = "http://46.249.102.73/save"
+const defaultMEP1ID = "40e4eaa8-e6ae-442a-a381-bb9c666eff38"
+const defaultMEP2ID = "72a5362e-41a7-4eb4-ad6c-752b329041c2"
 
 // Demo models
 var demoAppInfo ApplicationInstance
@@ -784,7 +788,23 @@ func amsNotificationCallback(w http.ResponseWriter, r *http.Request) {
 	amsTargetId = amsNotification.TargetAppInfo.AppInstanceId
 	targetDevice := amsNotification.AssociateId[0].Value
 
-	log.Debug(targetDevice)
+	if amsTargetId == defaultMEP1ID {
+		_, err := http.Post(defaultMEP1IP, "application/json", nil)
+		if err != nil {
+			log.Error("Failed to transfer app state to ", defaultMEP1IP, ": ", err.Error())
+		} else {
+			log.Info("State transferred: ", defaultMEP1IP)
+		}
+	}
+
+	if amsTargetId == defaultMEP2ID {
+		_, err := http.Post(defaultMEP2IP, "application/json", nil)
+		if err != nil {
+			log.Error("Failed to save app state for ", defaultMEP2IP, ": ", err.Error())
+		} else {
+			log.Info("State transferred: ", defaultMEP2IP)
+		}
+	}
 
 	var notifyUrl string
 

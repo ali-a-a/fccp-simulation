@@ -1,0 +1,800 @@
+openapi: 3.0.2
+info:
+  title: MEC Demo 3 API
+  description: Demo 3 is an edge application that can be used with AdvantEDGE or ETSI
+    MEC Sandbox to demonstrate MEC011 and MEC021 usage
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0
+  version: 0.0.1
+servers:
+- url: https://localhost
+paths:
+  /register/app:
+    post:
+      tags:
+      - frontend
+      summary: Register with MEC Platform and create necessary resources
+      description: Register with MEC Platform and create necessary resources
+      operationId: Register
+      responses:
+        "200":
+          description: "Uppon success, a response body containing the app instance\
+            \ info is returned"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ApplicationInstance'
+        "400":
+          description: Bad request. It is used to indicate that incorrect parameters
+            were passed to the request.
+        "404":
+          description: Not found
+  /info/application:
+    get:
+      tags:
+      - frontend
+      summary: Returns the application dynamic information
+      description: Returns the application dynamic information
+      operationId: GetPlatformInfo
+      responses:
+        "200":
+          description: "Upon success, a response body containing the app instance\
+            \ info is returned"
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ApplicationInstance'
+        "400":
+          description: Bad request. It is used to indicate that incorrect parameters
+            were passed to the request.
+        "404":
+          description: Not found
+  /info/logs:
+    get:
+      tags:
+      - frontend
+      summary: Returns activity logs
+      description: Returns activity logs
+      operationId: GetActivityLogs
+      responses:
+        "200":
+          description: "Uppon success, a response body containing logs of demo activities\
+            \ stored as strings will be returned"
+        "400":
+          description: Bad request. It is used to indicate that incorrect parameters
+            were passed to the request.
+        "404":
+          description: Not found
+  /info/ams:
+    get:
+      tags:
+      - frontend
+      summary: Returns the list of AMS Devices
+      description: Returns the list of AMS Devices
+      operationId: GetAmsDevices
+      responses:
+        "200":
+          description: "Uppon success, a response body containing the list of ams\
+            \ log and context state stored as strings is returned"
+        "400":
+          description: Bad request. It is used to indicate that incorrect parameters
+            were passed to the request.
+        "404":
+          description: Not found
+  /service/ams/update/{device}:
+    put:
+      tags:
+      - frontend
+      summary: Updates the list of AMS devices
+      description: Updates the list of AMS devices
+      operationId: UpdateAmsDevices
+      parameters:
+      - name: device
+        in: path
+        description: Start AMS service resource to track device name
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "404":
+          description: Not found
+  /service/ams/delete/{device}:
+    delete:
+      tags:
+      - frontend
+      summary: Delete an AMS device
+      description: Delete an AMS device
+      operationId: DeleteAmsDevice
+      parameters:
+      - name: device
+        in: path
+        description: Delete device from AMS service resource
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "404":
+          description: Not found
+  /info/application/delete:
+    delete:
+      tags:
+      - frontend
+      summary: Deregister with MEC Platform and delete associated resources
+      description: Deregister with MEC Platform and delete associated resources
+      operationId: Deregister
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request. It is used to indicate that incorrect parameters
+            were passed to the request.
+        "404":
+          description: Not found
+  /services/callback/amsevent:
+    post:
+      tags:
+      - notification
+      summary: Callback endpoint for AMS Notifications
+      description: Callback endpoint for AMS Notifications
+      operationId: AmsNotificationCallback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InlineNotification'
+        required: true
+      responses:
+        "204":
+          description: The notification was delivered successfully. The response body
+            shall be empty.
+          content: {}
+        "401":
+          description: It is used when the client did not submit credentials.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "403":
+          description: operation is not allowed given the current status of the resource.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: Used when a client provided a URI that cannot be mapped to
+            a valid resource URI.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "406":
+          description: Used to indicate that the server cannot provide the any of
+            the content formats supported by the client.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "429":
+          description: Used when a rate limiter has triggered.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /services/callback/service-availability:
+    post:
+      tags:
+      - notification
+      summary: Callback endpoint for MEC011 Notifications
+      description: Callback endpoint for MEC011 Notifications
+      operationId: ServiceAvailNotificationCallback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAvailabilityNotification'
+      responses:
+        "200":
+          description: "Expected responses from callback consumer, if it accepts the\
+            \ callback"
+  /application/termination:
+    post:
+      tags:
+      - notification
+      description: Represents the information that the MEP notifies the subscribed
+        application instance about the corresponding application instance termination/stop'
+      operationId: AppTerminationNotificationCallback
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppTerminationNotification'
+      responses:
+        "200":
+          description: "Expected responses from callback consumer, if it accepts the\
+            \ callback"
+  /application/transfer:
+    post:
+      tags:
+      - notification
+      summary: Callback endpoint for MEC021 context-state transfer notification
+      description: Callback endpoint for MEC021 context-state transfer notification
+      operationId: ContextTransferNotificationCallback
+      requestBody:
+        description: app termination notification details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationContextState'
+        required: true
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad request
+        "404":
+          description: Not found
+components:
+  schemas:
+    ApplicationInstance:
+      type: object
+      properties:
+        name:
+          type: string
+          example: MEP Name
+        url:
+          type: string
+        config:
+          type: string
+          example: app_instance1.yaml
+        ip:
+          type: string
+          example: <IP:port>
+        id:
+          type: string
+        mecReady:
+          type: boolean
+          description: Confirm if app instance is ready
+        mecTerminated:
+          type: boolean
+          description: Confirm the application level termination of application instance
+        amsResource:
+          type: boolean
+          description: Confirm if app instance has an ams service resource
+        subscriptions:
+          $ref: '#/components/schemas/ApplicationInstance_subscriptions'
+        offeredService:
+          $ref: '#/components/schemas/ApplicationInstance_offeredService'
+        discoveredServices:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationInstance_discoveredServices'
+      description: This type represent information to display on frontend app instance
+        text field
+      example:
+        mecReady: true
+        subscriptions:
+          SerAvailabilitySubscription:
+            subId: subId
+          AmsLinkListSubscription:
+            subId: subId
+            associateId:
+            - type: 0
+              value: value
+            - type: 0
+              value: value
+          AppTerminationSubscription:
+            subId: subId
+        amsResource: true
+        ip: <IP:port>
+        name: MEP Name
+        id: id
+        discoveredServices:
+        - link: link
+          serName: null
+          consumedLocalOnly: true
+          version: version
+          serInstanceId: serInstanceId
+        - link: link
+          serName: null
+          consumedLocalOnly: true
+          version: version
+          serInstanceId: serInstanceId
+        config: app_instance1.yaml
+        offeredService:
+          scopeOfLocality: MEC_SYSTEM
+          serName: serName
+          id: id
+          state: ACTIVE
+          consumedLocalOnly: true
+        url: url
+        mecTerminated: true
+    ApplicationInstance_AppTerminationSubscription:
+      type: object
+      properties:
+        subId:
+          type: string
+      description: This type represents the information that the MEC platform notifies
+        the subscribed application instance about  the corresponding application instance
+        termination/stop.
+      example:
+        subId: subId
+    ApplicationInstance_SerAvailabilitySubscription:
+      type: object
+      properties:
+        subId:
+          type: string
+      description: This type represents a subscription to the notifications from the
+        MEC platform regarding the availability of a MEC service or a list of MEC
+        services.
+      example:
+        subId: subId
+    ApplicationInstance_AmsLinkListSubscription:
+      type: object
+      properties:
+        subId:
+          type: string
+      description: This type represents the information that the MEC platform notifies
+        the subscribed application instance about app mobility support
+      example:
+        subId: subId
+        associateId:
+        - type: 0
+          value: value
+        - type: 0
+          value: value
+    ApplicationInstance_subscriptions:
+      type: object
+      properties:
+        AppTerminationSubscription:
+          $ref: '#/components/schemas/ApplicationInstance_AppTerminationSubscription'
+        SerAvailabilitySubscription:
+          $ref: '#/components/schemas/ApplicationInstance_SerAvailabilitySubscription'
+        AmsLinkListSubscription:
+          $ref: '#/components/schemas/ApplicationInstance_AmsLinkListSubscription'
+      description: List of ams subscription unique to device and their id
+      example:
+        SerAvailabilitySubscription:
+          subId: subId
+        AmsLinkListSubscription:
+          subId: subId
+          associateId:
+          - type: 0
+            value: value
+          - type: 0
+            value: value
+        AppTerminationSubscription:
+          subId: subId
+    ApplicationInstance_offeredService:
+      type: object
+      properties:
+        serName:
+          $ref: '#/components/schemas/SerName'
+        id:
+          type: string
+        state:
+          $ref: '#/components/schemas/ServiceState'
+        scopeOfLocality:
+          $ref: '#/components/schemas/LocalityType'
+        consumedLocalOnly:
+          type: boolean
+          description: Indicate whether the service can only be consumed by the MEC
+            applications located in the same locality (as defined by scopeOfLocality)
+            as this  service instance.
+      description: service offering
+      example:
+        scopeOfLocality: MEC_SYSTEM
+        serName: serName
+        id: id
+        state: ACTIVE
+        consumedLocalOnly: true
+    ApplicationInstance_discoveredServices:
+      type: object
+      properties:
+        serName:
+          $ref: '#/components/schemas/SerName'
+        serInstanceId:
+          $ref: '#/components/schemas/SerInstanceId'
+        consumedLocalOnly:
+          type: boolean
+          description: Indicate whether the service can only be consumed by the MEC
+            applications located in the same locality (as defined by scopeOfLocality)
+            as this  service instance.
+        link:
+          type: string
+        version:
+          type: string
+          description: Service version
+      description: List of service name and their status
+      example:
+        link: link
+        serName: null
+        consumedLocalOnly: true
+        version: version
+        serInstanceId: serInstanceId
+    ApplicationContextState:
+      type: object
+      properties:
+        Counter:
+          type: integer
+          description: Integer representing state of device being tracked
+        AppId:
+          type: string
+          description: Application UUID
+        Mep:
+          type: string
+          description: MEC platform name
+        Device:
+          type: string
+          description: Terminal device application is tracking
+    LocalityType:
+      type: string
+      description: "The scope of locality as expressed by \"consumedLocalOnly\" and\
+        \ \"isLocal\". If absent, defaults to MEC_HOST"
+      enum:
+      - MEC_SYSTEM
+      - MEC_HOST
+      - NFVI_POP
+      - ZONE
+      - ZONE_GROUP
+      - NFVI_NODE
+    SerInstanceId:
+      type: string
+      description: Identifier of the service instance assigned by the MEC platform.
+      readOnly: true
+    SerName:
+      type: string
+      description: The name of the service. This is how the service producing MEC
+        application identifies the service instance it produces.
+    ServiceState:
+      type: string
+      description: This enumeration defines the possible states of a service.
+      enum:
+      - ACTIVE
+      - INACTIVE
+    InlineNotification:
+      discriminator:
+        propertyName: NotificationType
+      oneOf:
+      - $ref: '#/components/schemas/MobilityProcedureNotification'
+      - $ref: '#/components/schemas/AdjacentAppInfoNotification'
+      - $ref: '#/components/schemas/ExpiryNotification'
+    MobilityProcedureNotification:
+      title: MobilityProcedureNotification
+      required:
+      - _links
+      - associateId
+      - mobilityStatus
+      - notificationType
+      properties:
+        notificationType:
+          type: string
+          description: Shall be set to "MobilityProcedureNotification".
+        timeStamp:
+          $ref: '#/components/schemas/TimeStamp'
+        associateId:
+          type: array
+          description: 1 to N identifiers to associate the information for specific
+          items:
+            $ref: '#/components/schemas/AssociateId'
+        mobilityStatus:
+          $ref: '#/components/schemas/MobilityStatus'
+        targetAppInfo:
+          $ref: '#/components/schemas/MobilityProcedureNotification_targetAppInfo'
+        _links:
+          $ref: '#/components/schemas/Link'
+    TimeStamp:
+      title: TimeStamp
+      required:
+      - nanoSeconds
+      - seconds
+      type: object
+      properties:
+        seconds:
+          type: integer
+          description: "'The seconds part of the Time. Time is defined as Unix-time\
+            \ since January 1, 1970, 00:00:00 UTC.'"
+        nanoSeconds:
+          type: integer
+          description: "'The nanoseconds part of the Time. Time is defined as Unix-time\
+            \ since January 1, 1970, 00:00:00 UTC.'"
+      description: "'This data type represents the time stamp as Unix-time since January\
+        \ 1, 1970, 00:00:00 UTC'"
+    AssociateId:
+      title: AssociateId
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/AssociateIdType'
+        value:
+          type: string
+          description: Value for the identifier.
+    AssociateIdType:
+      title: Type
+      type: string
+      description: Numeric value (0-255) corresponding to specified type of identifier
+      example: "[\"UE_IPv4_ADDRESS\"]"
+      enum:
+      - UE_IPv4_ADDRESS
+      - UE_IPV6_ADDRESS
+      - NATED_IP_ADDRESS
+      - GTP_TEID
+    MobilityStatus:
+      title: MobilityStatus
+      type: string
+      description: Indicate the status of the UE mobility
+      example: "[\"INTERHOST_MOVEOUT_TRIGGERED\"]"
+      enum:
+      - INTERHOST_MOVEOUT_TRIGGERED
+      - INTERHOST_MOVEOUT_COMPLETED
+      - INTERHOST_MOVEOUT_FAILED
+    CommunicationInterface:
+      title: CommunicationInterface
+      type: object
+      properties:
+        ipAddresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommunicationInterface.IpAddresses'
+    CommunicationInterface.IpAddresses:
+      title: CommunicationInterface.IpAddresses
+      required:
+      - host
+      - port
+      type: object
+      properties:
+        host:
+          type: string
+        port:
+          type: integer
+    Link:
+      required:
+      - subscription
+      type: object
+      properties:
+        subscription:
+          $ref: '#/components/schemas/LinkType'
+      description: Object containing hyperlinks related to the resource.
+    LinkType:
+      title: LinkType
+      required:
+      - href
+      type: object
+      properties:
+        href:
+          type: string
+          description: The URI referring to the subscription.
+      description: '''This data type represents a type of link'''
+    AdjacentAppInfoNotification:
+      title: AdjacentAppInfoNotification
+      required:
+      - _links
+      - notificationType
+      properties:
+        notificationType:
+          type: string
+          description: Shall be set to "AdjacentAppInfoNotification".
+        timeStamp:
+          $ref: '#/components/schemas/TimeStamp'
+        associateId:
+          type: array
+          description: 1 to N identifiers to associate the information for specific
+          items:
+            $ref: '#/components/schemas/AssociateId'
+        adjacentAppInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/AdjacentAppInfoNotificationAdjacentAppInfo'
+        _links:
+          $ref: '#/components/schemas/Link'
+    AdjacentAppInfoNotificationAdjacentAppInfo:
+      required:
+      - appInstanceId
+      - commInterface
+      type: object
+      properties:
+        appInstanceId:
+          type: string
+          description: Identifier of the adjacent application instance.
+        commInterface:
+          type: array
+          description: "If present, it represents the communication interface(s) information\
+            \ of the application instance."
+          items:
+            $ref: '#/components/schemas/CommunicationInterface'
+    ExpiryNotification:
+      title: ExpiryNotification
+      required:
+      - _links
+      - expiryDeadline
+      - notificationType
+      properties:
+        notificationType:
+          type: string
+          description: Shall be set to "ExpiryNotification".
+        timeStamp:
+          $ref: '#/components/schemas/TimeStamp'
+        _links:
+          $ref: '#/components/schemas/Link'
+        expiryDeadline:
+          $ref: '#/components/schemas/TimeStamp'
+    ProblemDetails:
+      title: ProblemDetails
+      type: object
+      properties:
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of
+            the problem
+        instance:
+          type: string
+          description: A URI reference that identifies the specific occurrence of
+            the problem
+        status:
+          type: integer
+          description: The HTTP status code for this occurrence of the problem
+        title:
+          type: string
+          description: "A short, human-readable summary of the problem type"
+        type:
+          type: string
+          description: A URI reference according to IETF RFC 3986 that identifies
+            the problem type
+    ServiceAvailabilityNotification:
+      required:
+      - _links
+      - notificationType
+      - serviceReferences
+      type: object
+      properties:
+        notificationType:
+          type: string
+          description: Shall be set to SerAvailabilityNotification.
+        serviceReferences:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceAvailabilityNotification_serviceReferences'
+        _links:
+          $ref: '#/components/schemas/Subscription'
+      description: This type represents the service availability information.
+    LinkType_1:
+      type: object
+      properties:
+        href:
+          type: string
+          description: URI referring to a resource
+          format: uri
+          example: /mecSerMgmtApi/example
+      description: This type represents a type of link and may be referenced from
+        data structures
+    ServiceState_1:
+      type: string
+      description: This enumeration defines the possible states of a service.
+      enum:
+      - ACTIVE
+      - INACTIVE
+      - SUSPENDED
+    ServiceAvailabilityNotificationChangeType:
+      type: string
+      description: "Type of the change. Valid values:\n ADDED: The service was newly\
+        \ added.\n  REMOVED: The service was removed.\n  STATE_CHANGED: Only the state\
+        \ of the service was changed.\n  ATTRIBUTES_CHANGED: At least one attribute\
+        \ of the service other than state was changed. The change may or may not include\
+        \ changing the state."
+      enum:
+      - ADDED
+      - REMOVED
+      - STATE_CHANGED
+      - ATTRIBUTES_CHANGED
+    Subscription:
+      required:
+      - subscription
+      type: object
+      properties:
+        subscription:
+          $ref: '#/components/schemas/LinkType_1'
+      description: A link to the related subscription
+    AppTerminationNotification:
+      title: AppTerminationNotification
+      required:
+      - _links
+      - maxGracefulTimeout
+      - notificationType
+      - operationAction
+      type: object
+      properties:
+        notificationType:
+          type: string
+          description: Shall be set to AppTerminationNotification.
+          example: "[\"AppTerminationNotification\"]"
+        operationAction:
+          $ref: '#/components/schemas/OperationActionType'
+        maxGracefulTimeout:
+          type: integer
+          description: Maximum timeout value in seconds for graceful termination or
+            graceful stop of an application instance.
+        _links:
+          $ref: '#/components/schemas/AppTerminationNotificationLinks'
+      description: This type represents the information that the MEC platform notifies
+        the subscribed application instance about  the corresponding application instance
+        termination/stop.
+    OperationActionType:
+      title: OperationActionType
+      type: string
+      description: Operation that is being performed on the MEC application instance.
+      example: "[\"TERMINATING\"]"
+      enum:
+      - STOPPING
+      - TERMINATING
+    AppTerminationNotificationLinks:
+      title: AppTerminationNotificationLinks
+      required:
+      - subscription
+      type: object
+      properties:
+        subscription:
+          $ref: '#/components/schemas/LinkType_2'
+        confirmTermination:
+          $ref: '#/components/schemas/LinkTypeConfirmTermination'
+      description: Object containing hyperlinks related to the resource.
+    LinkType_2:
+      title: LinkType
+      type: object
+      properties:
+        href:
+          type: string
+          description: URI referring to a resource
+          example: "[\"/mecAppSuptApi/example\"]"
+      description: This type represents a type of link and may be referenced from
+        data structures
+    LinkTypeConfirmTermination:
+      title: LinkTypeConfirmTermination
+      type: object
+      properties:
+        href:
+          type: string
+          description: URI referring to a resource
+          example: "[\"/mecAppSuptApi/example\"]"
+      description: Link to the task resource where to confirm termination in case
+        the  application is ready to be terminated before expiry of the timeout.
+    MobilityProcedureNotification_targetAppInfo:
+      required:
+      - appInstanceId
+      type: object
+      properties:
+        appInstanceId:
+          type: string
+          description: Identifiers of the target application instance.
+        commInterface:
+          $ref: '#/components/schemas/CommunicationInterface'
+    ServiceAvailabilityNotification_serviceReferences:
+      required:
+      - changeType
+      - serInstanceId
+      - serName
+      - state
+      type: object
+      properties:
+        link:
+          $ref: '#/components/schemas/LinkType_1'
+        serName:
+          $ref: '#/components/schemas/SerName'
+        serInstanceId:
+          $ref: '#/components/schemas/SerInstanceId'
+        state:
+          $ref: '#/components/schemas/ServiceState_1'
+        changeType:
+          $ref: '#/components/schemas/ServiceAvailabilityNotificationChangeType'
+      description: List of links to services whose availability has changed.

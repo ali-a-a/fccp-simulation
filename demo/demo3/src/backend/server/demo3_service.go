@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -84,8 +85,8 @@ var consumedLocalOnly bool = defaultConsumedLocalOnly
 
 const defaultScopeOfLocality = "MEC_SYSTEM"
 const defaultConsumedLocalOnly = true
-const defaultMEP1IP = "http://185.110.191.123/save"
-const defaultMEP2IP = "http://46.249.102.73/save"
+const defaultMEP1IP = "http://185.110.191.123"
+const defaultMEP2IP = "http://46.249.102.73"
 const defaultMEP1ID = "40e4eaa8-e6ae-442a-a381-bb9c666eff38"
 const defaultMEP2ID = "72a5362e-41a7-4eb4-ad6c-752b329041c2"
 
@@ -449,6 +450,32 @@ func demo3GetAmsDevices(w http.ResponseWriter, r *http.Request) {
 		resp = append(resp, terminalDevices[orderedAmsAdded[i]])
 	}
 
+	var fccpCounterMEP1 string
+	var fccpCounterMEP2 string
+
+	fccpResp1, err := http.Get(defaultMEP1IP + "/log")
+	if err == nil {
+		body, err := io.ReadAll(fccpResp1.Body)
+		if err != nil {
+			log.Error("Failed to read resp1 body: ", err.Error())
+		}
+
+		fccpCounterMEP1 = defaultMEP1ID + " fccp counter: " + string(body)
+	}
+
+	fccpResp2, err := http.Get(defaultMEP2IP + "/log")
+	if err == nil {
+		body, err := io.ReadAll(fccpResp2.Body)
+		if err != nil {
+			log.Error("Failed to read resp2 body: ", err.Error())
+		}
+
+		fccpCounterMEP2 = defaultMEP2ID + " fccp counter: " + string(body)
+	}
+
+	resp = append(resp, fccpCounterMEP1)
+	resp = append(resp, fccpCounterMEP2)
+
 	jsonResponse, err := json.Marshal(resp)
 	if err != nil {
 		log.Error(err.Error())
@@ -789,7 +816,7 @@ func amsNotificationCallback(w http.ResponseWriter, r *http.Request) {
 	targetDevice := amsNotification.AssociateId[0].Value
 
 	if amsTargetId == defaultMEP1ID {
-		_, err := http.Post(defaultMEP1IP, "application/json", nil)
+		_, err := http.Post(defaultMEP1IP+"/save", "application/json", nil)
 		if err != nil {
 			log.Error("Failed to transfer app state to ", defaultMEP1IP, ": ", err.Error())
 		} else {
@@ -798,7 +825,7 @@ func amsNotificationCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if amsTargetId == defaultMEP2ID {
-		_, err := http.Post(defaultMEP2IP, "application/json", nil)
+		_, err := http.Post(defaultMEP2IP+"/save", "application/json", nil)
 		if err != nil {
 			log.Error("Failed to save app state for ", defaultMEP2IP, ": ", err.Error())
 		} else {

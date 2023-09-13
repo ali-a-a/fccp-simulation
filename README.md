@@ -63,3 +63,6 @@ By this change, we can inform target server to start the migration process.
 ## Map Visualization
 
 ![visualization](https://user-images.githubusercontent.com/68470999/264282636-7dd4c32d-7779-4b5a-83bd-0ca0479e4feb.png)
+
+## Reference
+[Experimental comparison of migration strategies for MEC-assisted 5G-V2X applications](https://www.sciencedirect.com/science/article/pii/S0140366422003978)
